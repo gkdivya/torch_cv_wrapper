@@ -1,5 +1,5 @@
 import torchvision
-from utils.load_data import Cifar10DataLoader
+from dataloader.load_data import Cifar10DataLoader
 import torch
 import torch.optim as optim
 import matplotlib.pyplot as plt
