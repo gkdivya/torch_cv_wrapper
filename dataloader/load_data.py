@@ -3,7 +3,7 @@ import torchvision
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.utils as utils
-from albumentation import CIFAR10Albumentation
+from torch-cv-wrapper.dataloader.albumentation import CIFAR10Albumentation
 
 
 class Cifar10DataLoader:
