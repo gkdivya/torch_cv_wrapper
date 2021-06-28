@@ -2,19 +2,20 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from tqdm import tqdm
+from torch.utils.tensorboard import SummaryWriter
 
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:
         return param_group['lr']
 
-def train(model, device, train_loader, optimizer, epoch,train_acc,train_loss,lambda_l1,scheduler,criterion,lrs,grad_clip=None):
+def train(model, device, train_loader, optimizer, epoch,train_acc,train_loss,lambda_l1,scheduler,criterion,lrs,writer,grad_clip=None):
 
   model.train()
   pbar = tqdm(train_loader)
   
   correct = 0
   processed = 0
-  
+
   for batch_idx, (data, target) in enumerate(pbar):
     # get samples
     data, target = data.to(device), target.to(device)
@@ -38,6 +39,10 @@ def train(model, device, train_loader, optimizer, epoch,train_acc,train_loss,lam
       loss = loss + lambda_l1*l1
 
     train_loss.append(loss.data.cpu().numpy().item())
+    #t_loss += loss.data.cpu().numpy().item()
+    
+    writer.add_scalar(
+                'Batch/Train/train_loss', loss.data.cpu().numpy().item(), epoch*len(pbar) + batch_idx)
 
     # Backpropagation
     loss.backward()
