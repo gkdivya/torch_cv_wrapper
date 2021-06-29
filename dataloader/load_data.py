@@ -3,12 +3,13 @@ import torchvision
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.utils as utils
-from torch_cv_wrapper.dataloader.albumentation import CIFAR10Albumentation
+from torch_cv_wrapper.dataloader.albumentation import *
 
 
 class Cifar10DataLoader:
     def __init__(self, config):
         self.config = config
+        self.augmentation = config['data_augmentation']['type']
         
     def calculate_mean_std(self):
         train_transform = transforms.Compose([transforms.ToTensor()])
@@ -18,7 +19,9 @@ class Cifar10DataLoader:
         return mean, std
 
     def get_dataloader(self): 
-        cifar_albumentation = CIFAR10Albumentation()
+        
+        cifar_albumentation = eval(self.augmentation)()
+        #cifar_albumentation = CIFAR10Albumentation()
         mean,std = self.calculate_mean_std()
         
         train_transforms, test_transforms = cifar_albumentation.train_transform(mean,std),cifar_albumentation.test_transform(mean,std)
