@@ -4,8 +4,8 @@ import torch
 import torch.optim as optim
 import matplotlib.pyplot as plt
 from torch.optim.lr_scheduler import StepLR,OneCycleLR
-from torch-cv-wrapper.utils import train as trn
-from torch-cv-wrapper.utils import test as tst
+from torch_cv_wrapper.utils import train as trn
+from torch_cv_wrapper.utils import test as tst
 from torchsummary import summary
 import yaml
 from pprint import pprint
