@@ -12,7 +12,7 @@ class Cifar10DataLoader:
         
     def calculate_mean_std(self):
         train_transform = transforms.Compose([transforms.ToTensor()])
-        train_set = datasets.CIFAR10(root='./data', train=True, download=False, transform=train_transform)
+        train_set = datasets.CIFAR10(root='./data', train=True, download=True, transform=train_transform)
         mean = train_set.data.mean(axis=(0,1,2))/255
         std = train_set.data.std(axis=(0,1,2))/255
         return mean, std
