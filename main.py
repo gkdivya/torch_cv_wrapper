@@ -19,7 +19,9 @@ from torch.utils.tensorboard import SummaryWriter
 class TriggerEngine:
     def __init__(self, config):
         self.config = config
-        self.cifar_dataset=Cifar10DataLoader(self.config)
+        self.loader = config['data_loader']['type']
+        self.cifar_dataset=eval(self.loader)(self.config)
+        #self.cifar_dataset=Cifar10DataLoader(self.config)
         self.device = self.set_device()
         self.class_names = self.config['data_loader']['classes']
         self.writer = SummaryWriter()
