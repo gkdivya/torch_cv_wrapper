@@ -3,7 +3,7 @@ from torch_cv_wrapper.dataloader.load_data import *
 import torch
 import torch.optim as optim
 import matplotlib.pyplot as plt
-from torch.optim.lr_scheduler import StepLR,OneCycleLR
+from torch.optim.lr_scheduler import StepLR,OneCycleLR,ReduceLROnPlateau
 from torch_cv_wrapper.utils import train as trn
 from torch_cv_wrapper.utils import test as tst
 from torchsummary import summary
