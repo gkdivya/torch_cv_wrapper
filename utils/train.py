@@ -51,8 +51,10 @@ def train(model, device, train_loader, optimizer, epoch,train_acc,train_loss,lam
     if grad_clip: 
         nn.utils.clip_grad_value_(model.parameters(), grad_clip)
         
-    optimizer.step()
-    scheduler.step()
+    optimizer.step()   
+    if "OneCycleLR" in str(scheduler):
+        scheduler.step()
+        
     lrs.append(get_lr(optimizer))
 
     # Update pbar-tqdm
