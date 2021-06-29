@@ -21,7 +21,6 @@ class TriggerEngine:
         self.config = config
         self.loader = config['data_loader']['type']
         self.cifar_dataset=eval(self.loader)(self.config)
-        #self.cifar_dataset=Cifar10DataLoader(self.config)
         self.device = self.set_device()
         self.class_names = self.config['data_loader']['classes']
         self.writer = SummaryWriter()
@@ -61,8 +60,11 @@ class TriggerEngine:
         
         #optimizer = optim.SGD(model.parameters(), lr=0.02, momentum=0.7,weight_decay=l2_factor)
         optimizer = opt_func(model.parameters(), lr=lr, weight_decay=l2_factor)
-        #scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True,mode='max')
-        scheduler = OneCycleLR(optimizer, max_lr=lr,epochs=epochs,steps_per_epoch=len(train_loader))
+        
+        if self.config['lr_scheduler'] == 'OneCycleLR': 
+            scheduler = OneCycleLR(optimizer, max_lr=lr,epochs=epochs,steps_per_epoch=len(train_loader))
+        else:
+            scheduler = ReduceLROnPlateau(optimizer, patience=3, verbose=True,mode='max')
 
         for epoch in range(1, epochs + 1):
             print(f'Epoch {epoch}:')
@@ -74,8 +76,8 @@ class TriggerEngine:
             self.writer.add_scalar('Epoch/Train/train_accuracy', train_accuracy[-1], epoch)
             self.writer.add_scalar('Epoch/Train/test_accuracy', test_accuracy[-1], epoch)
 
-            # if epoch > 20:
-            #     scheduler.step(test_accuracy[-1])
+            if "ReduceLROnPlateau" in str(scheduler):
+                scheduler.step(test_accuracy[-1])
 
             self.writer.flush()
         return (train_accuracy,train_losses,test_accuracy,test_losses)
