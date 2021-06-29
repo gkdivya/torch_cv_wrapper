@@ -18,6 +18,7 @@ optimizer :
     type: optim.SGD
     args:
         lr: 0.01
+lr_scheduler: ReduceLROnPlateau
 training_params:
     epochs: 4
     l1_factor: 0
