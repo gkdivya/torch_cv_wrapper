@@ -65,7 +65,7 @@ class TriggerEngine:
         if self.config['lr_scheduler'] == 'OneCycleLR': 
             scheduler = OneCycleLR(optimizer, max_lr=lr,epochs=epochs,steps_per_epoch=len(train_loader))
         else:
-            scheduler = ReduceLROnPlateau(optimizer, patience=3, verbose=True,mode='max')
+            scheduler = ReduceLROnPlateau(optimizer, factor=0.1, verbose=True,mode='max')
 
         for epoch in range(1, epochs + 1):
             print(f'Epoch {epoch}:')
