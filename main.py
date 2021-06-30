@@ -63,6 +63,7 @@ class TriggerEngine:
         optimizer = opt_func(model.parameters(), lr=lr, weight_decay=l2_factor)
         
         if self.config['lr_scheduler'] == 'OneCycleLR': 
+            print("using OneCycleLR")
             scheduler = OneCycleLR(optimizer, max_lr=lr,epochs=epochs,steps_per_epoch=len(train_loader))
         else:
             scheduler = ReduceLROnPlateau(optimizer, patience=3,verbose=True,mode='max')
@@ -79,6 +80,7 @@ class TriggerEngine:
             plot_train_acc.append(train_accuracy[-1])
 
             if "ReduceLROnPlateau" in str(scheduler):
+                print("using ReduceLROnPlateau")
                 scheduler.step(test_accuracy[-1])
 
             self.writer.flush()
