@@ -83,11 +83,11 @@ def ResNet18(norm_type='BN'):
     if norm_type == 'BN':
     	return ResNet(BasicBlock, [2, 2, 2, 2],"BN")
     else:
-	return ResNet(BasicBlock, [2, 2, 2, 2],"LN")
+        return ResNet(BasicBlock, [2, 2, 2, 2],"LN")
 
 
 def ResNet34(norm_type='BN'):
     if norm_type == 'BN':
     	return ResNet(BasicBlock, [3, 4, 6, 3],"BN")
     else:
-	return ResNet(BasicBlock, [3, 4, 6, 3],"LN")
+        return ResNet(BasicBlock, [3, 4, 6, 3],"LN")
