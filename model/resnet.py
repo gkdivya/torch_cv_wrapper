@@ -11,19 +11,19 @@ class BasicBlock(nn.Module):
         if norm_type == 'BN':
              self.bn1 = nn.BatchNorm2d(planes)
         else:
-             self.bn1 = nn.GroupNorm(planes)
+             self.bn1 = nn.GroupNorm(1,planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, padding=1, bias=False)
         if norm_type == 'BN':
              self.bn2 = nn.BatchNorm2d(planes)
         else:
-             self.bn2 = nn.GroupNorm(planes)
+             self.bn2 = nn.GroupNorm(1,planes)
         
 
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != self.expansion*planes:
             self.shortcut = nn.Sequential(
                 nn.Conv2d(in_planes, self.expansion*planes, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(self.expansion*planes) if norm_type == 'BN' else nn.GroupNorm(self.expansion*planes)
+                nn.BatchNorm2d(self.expansion*planes) if norm_type == 'BN' else nn.GroupNorm(1,self.expansion*planes)
             )
 
     def forward(self, x):
