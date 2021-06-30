@@ -18,7 +18,7 @@ optimizer :
     type: optim.Adam
     args:
         lr: 0.01
-lr_scheduler: ReduceLROnPlateau
+lr_scheduler: OneCycleLR
 training_params:
     epochs: 40
     l1_factor: 0
