@@ -55,6 +55,7 @@ class TriggerEngine:
         test_losses = []
         train_accuracy = []
         test_accuracy = []
+        plot_train_acc=[]
         lrs=[]
             
         
@@ -75,12 +76,13 @@ class TriggerEngine:
             self.writer.add_scalar('Epoch/Test/test_loss', test_losses[-1], epoch)
             self.writer.add_scalar('Epoch/Train/train_accuracy', train_accuracy[-1], epoch)
             self.writer.add_scalar('Epoch/Train/test_accuracy', test_accuracy[-1], epoch)
+            plot_train_acc.append(train_accuracy[-1])
 
             if "ReduceLROnPlateau" in str(scheduler):
                 scheduler.step(test_accuracy[-1])
 
             self.writer.flush()
-        return (train_accuracy,train_losses,test_accuracy,test_losses)
+        return (plot_train_acc,train_losses,test_accuracy,test_losses)
         
     def save_experiment(self,model, experiment_name,path):
         print(f"Saving the model for {experiment_name}")
