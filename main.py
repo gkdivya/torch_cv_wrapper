@@ -121,7 +121,7 @@ class TriggerEngine:
         fig.tight_layout()
         mean,std = self.cifar_dataset.calculate_mean_std()
         #mean,std = helper.calculate_mean_std("CIFAR10")
-        for i, (img, pred, correct) in enumerate(wrong_predictions[:10]):
+        for i, (img, pred, correct) in enumerate(wrong_predictions[:20]):
             img, pred, target = img.cpu().numpy().astype(dtype=np.float32), pred.cpu(), correct.cpu()
             for j in range(img.shape[0]):
                 img[j] = (img[j]*std[j])+mean[j]
