@@ -53,6 +53,8 @@ def train(model, device, train_loader, optimizer, epoch,train_acc,train_loss,lam
         
     optimizer.step()   
     if "OneCycleLR" in str(scheduler):
+        print("This is OneCycle LR")
+        print(type(scheduler)
         scheduler.step()
         
     lrs.append(get_lr(optimizer))
