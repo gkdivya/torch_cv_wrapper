@@ -1,3 +1,8 @@
+[Ready, set, GO!](#ready-set-go)
+(#grad-cam)
+# albumentation.py
+
+
 # Class Activation Map -  GradCAM
 
 Gradient-weighted Class Activation Mapping (GradCAM) uses the gradients of any target concept (say logits for 'dog' or even a caption), 
