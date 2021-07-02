@@ -1,4 +1,4 @@
-[Ready, set, GO!](#ready-set-go)
+[Albumentation!](#albumentation)
 
 # albumentation.py
 
@@ -32,7 +32,7 @@ Important points to note:
 ## Sample GradCAM
 ![image](https://user-images.githubusercontent.com/17870236/124299966-a9227480-db7b-11eb-8805-3558a4b309f5.png)
 
-# ready-set-go
+# albumentation
 # Image Augmentation
 Albumentation Library is being used to apply image augmentation
 
