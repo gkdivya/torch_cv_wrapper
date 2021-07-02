@@ -33,3 +33,5 @@ Torch based library for developing computer vision models
 
 ## References
 [Kuangliu's PyTorch on CIFAR repo](https://github.com/kuangliu/pytorch-cifar)
+[Tensorboard](https://www.youtube.com/watch?v=pSexXMdruFM&ab_channel=deeplizard)
+[GradCam with PyTorch](https://github.com/kazuto1011/grad-cam-pytorch)
