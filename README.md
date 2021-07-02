@@ -2,14 +2,14 @@
 Torch based library for developing computer vision models 
 
 ## Features
-Following model implementations on PyTorch for CIFAR dataset
-- ResNet18
-- ResNet34
-- CustomModel
+- Following model implementations on PyTorch for CIFAR dataset
+    * ResNet18
+    * ResNet34
+    * CustomModel
 
-**Albumentations** for Image augmentations 
-**Gradcam** for explaining the model output
-**Util functions** for training, testing, plotting metrics, Tensorboard integration
+- **Albumentations** for Image augmentations 
+- **Gradcam** for explaining the model output
+- **Util functions** for training, testing, plotting metrics, Tensorboard integration
 
 ## Folder Structure of the library
 
