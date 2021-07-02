@@ -1,4 +1,4 @@
-# torch-cv-wrapper
+# torch_cv_wrapper
 Torch based library for developing computer vision models 
 
 ## Features
