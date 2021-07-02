@@ -1,4 +1,4 @@
-[Albumentation!](#albumentation)
+[Albumentation](#albumentation)
 
 # albumentation.py
 
