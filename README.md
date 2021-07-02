@@ -1,8 +1,8 @@
 # torch-cv-wrapper
 Torch based library for developing computer vision models 
 
-## Current support
-Current version supports following model implementations on PyTorch for CIFAR dataset
+## Features
+Following model implementations on PyTorch for CIFAR dataset
 - ResNet18
 - ResNet34
 - CustomModel
@@ -19,7 +19,8 @@ Current version supports following model implementations on PyTorch for CIFAR da
     |   ├── albumentation.py 
     |   ├── load_data.py
     ├── model  
-    |   ├── model.py 
+    |   ├── custommodel.py 
+    |   ├── resnet.py
     ├── utils  
     |   ├── __init__.py 
     |   ├── train.py 
