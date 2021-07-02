@@ -1,9 +1,14 @@
-[Albumentation](#albumentation)
+# Files
 
-# albumentation.py
+[gradcam.py](#gradcam) </br>
+[helper.py](#helper) </br>
+[plot_metrics.py](#plot_metrics)</br>
+[train.py](#train)</br>
+[test.py](#test)</br>
 
 
-# Class Activation Map -  GradCAM
+
+# gradcam
 
 Gradient-weighted Class Activation Mapping (GradCAM) uses the gradients of any target concept (say logits for 'dog' or even a caption), 
 flowing into the final convolutional layer to produce a coarse localization map highlighting the important regions in the image for predicting the concept. _
@@ -32,12 +37,12 @@ Important points to note:
 ## Sample GradCAM
 ![image](https://user-images.githubusercontent.com/17870236/124299966-a9227480-db7b-11eb-8805-3558a4b309f5.png)
 
-# albumentation
-# Image Augmentation
-Albumentation Library is being used to apply image augmentation
+# helper
+- calculate mean and std values
+- compute
 
-- Faster than TorchVision inbuilt augmentation
-- Better support for segmentation and object detection dataset with "label preserving transformations"
+# plot_metrics
 
-Visualization of Image Augmentation on CIFAR-10 samples
-![image](https://user-images.githubusercontent.com/17870236/124300138-d96a1300-db7b-11eb-8766-a70505c61b94.png)
+# train
+
+# test
