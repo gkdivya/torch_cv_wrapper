@@ -14,6 +14,7 @@ import numpy as np
 import torch.nn as nn
 import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
+from torch_lr_finder import LRFinder
 
 
 class TriggerEngine:
@@ -37,13 +38,14 @@ class TriggerEngine:
         device = torch.device("cuda" if use_cuda else "cpu")
         return device
         
-    def run_experiment(self,model,train_loader,test_loader):
+    def run_experiment(self,model,train_loader,test_loader,lrmin,lrmax):
         
         model.to(self.device) 
         dropout=self.config['model_params']['dropout']
         epochs=self.config['training_params']['epochs']
         l2_factor = self.config['training_params']['l2_factor']
         l1_factor = self.config['training_params']['l1_factor']
+        max_epoch = self.config['lr_finder']['max_epoch']
         
         criterion = nn.CrossEntropyLoss() if self.config['criterion'] == 'CrossEntropyLoss' else F.nll_loss()
         opt_func = optim.Adam if self.config['optimizer']['type'] == 'optim.Adam' else optim.SGD
@@ -60,11 +62,14 @@ class TriggerEngine:
             
         
         #optimizer = optim.SGD(model.parameters(), lr=0.02, momentum=0.7,weight_decay=l2_factor)
-        optimizer = opt_func(model.parameters(), lr=lr, weight_decay=l2_factor)
+        optimizer = opt_func(model.parameters(), lr=lrmin, weight_decay=l2_factor)
         
         if self.config['lr_scheduler'] == 'OneCycleLR': 
             print("using OneCycleLR")
-            scheduler = OneCycleLR(optimizer, max_lr=lr,epochs=epochs,steps_per_epoch=len(train_loader))
+            scheduler = OneCycleLR(optimizer=optimizer, max_lr=lrmax,
+                                  epochs=epochs, steps_per_epoch=len(train_loader),
+                                  pct_start=max_epoch/epochs, div_factor=10, final_div_factor=10)
+            #scheduler = OneCycleLR(optimizer, max_lr=lr,epochs=epochs,steps_per_epoch=len(train_loader))
         else:
             scheduler = ReduceLROnPlateau(optimizer, factor=0.2, patience=3,verbose=True,mode='max')
 
@@ -84,6 +89,27 @@ class TriggerEngine:
 
             self.writer.flush()
         return (plot_train_acc,train_losses,test_accuracy,test_losses)
+    
+    def find_lr(self,model,train_loader, test_loader, start_lr, end_lr):
+        
+        
+        lr_epochs = self.config['lr_finder']['lr_epochs']
+        num_iterations = len(test_loader) * lr_epochs
+
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.SGD(model.parameters(), lr=start_lr, momentum=0.90)
+        #optimizer = optim.Adam(model.parameters(), lr=0.1, weight_decay=1e-2)
+        lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
+        lr_finder.range_test(train_loader, val_loader=test_loader, end_lr=end_lr, num_iter=num_iterations, step_mode="linear")
+        
+        # Plot
+        max_lr = lr_finder.history['lr'][lr_finder.history['loss'].index(lr_finder.best_loss)]
+        lr_finder.plot(suggest_lr=True,skip_start=0, skip_end=0)
+
+        # Reset graph
+        lr_finder.reset()
+        return max_lr
+    
         
     def save_experiment(self,model, experiment_name,path):
         print(f"Saving the model for {experiment_name}")
