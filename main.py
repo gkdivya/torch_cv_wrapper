@@ -25,6 +25,7 @@ class TriggerEngine:
         self.device = self.set_device()
         self.class_names = self.config['data_loader']['classes']
         self.writer = SummaryWriter()
+        self.l2_factor = self.config['training_params']['l2_factor']
 
         
     def dataloader(self):
@@ -43,7 +44,7 @@ class TriggerEngine:
         model.to(self.device) 
         dropout=self.config['model_params']['dropout']
         epochs=self.config['training_params']['epochs']
-        l2_factor = self.config['training_params']['l2_factor']
+        
         l1_factor = self.config['training_params']['l1_factor']
         max_epoch = self.config['lr_finder']['max_epoch']
         
@@ -61,15 +62,13 @@ class TriggerEngine:
         lrs=[]
             
         
-        #optimizer = optim.SGD(model.parameters(), lr=0.02, momentum=0.7,weight_decay=l2_factor)
-        optimizer = opt_func(model.parameters(), lr=lrmin, weight_decay=l2_factor)
+        optimizer = optim.SGD(model.parameters(), lr=lrmin, momentum=0.90,weight_decay=self.l2_factor)
         
         if self.config['lr_scheduler'] == 'OneCycleLR': 
             print("using OneCycleLR")
             scheduler = OneCycleLR(optimizer=optimizer, max_lr=lrmax,
                                   epochs=epochs, steps_per_epoch=len(train_loader),
-                                  pct_start=max_epoch/epochs, div_factor=10, final_div_factor=10)
-            #scheduler = OneCycleLR(optimizer, max_lr=lr,epochs=epochs,steps_per_epoch=len(train_loader))
+                                  pct_start=max_epoch/epochs,div_factor=8)
         else:
             scheduler = ReduceLROnPlateau(optimizer, factor=0.2, patience=3,verbose=True,mode='max')
 
@@ -97,18 +96,16 @@ class TriggerEngine:
         num_iterations = len(test_loader) * lr_epochs
 
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(model.parameters(), lr=start_lr, momentum=0.90)
-        #optimizer = optim.Adam(model.parameters(), lr=0.1, weight_decay=1e-2)
+        optimizer = optim.SGD(model.parameters(), lr=start_lr, momentum=0.90, weight_decay=self.l2_factor)
         lr_finder = LRFinder(model, optimizer, criterion, device="cuda")
-        lr_finder.range_test(train_loader, val_loader=test_loader, end_lr=end_lr, num_iter=num_iterations, step_mode="linear")
+        lr_finder.range_test(train_loader, val_loader=test_loader, end_lr=end_lr, num_iter=num_iterations, step_mode="linear",diverge_th=50)
         
         # Plot
-        max_lr = lr_finder.history['lr'][lr_finder.history['loss'].index(lr_finder.best_loss)]
-        lr_finder.plot(suggest_lr=True,skip_start=0, skip_end=0)
+        max_lr = lr_finder.plot(suggest_lr=True,skip_start=0, skip_end=0)
 
         # Reset graph
         lr_finder.reset()
-        return max_lr
+        return max_lr[1]
     
         
     def save_experiment(self,model, experiment_name,path):
@@ -152,7 +149,7 @@ class TriggerEngine:
             for j in range(img.shape[0]):
                 img[j] = (img[j]*std[j])+mean[j]
             
-            img = np.transpose(img, (1, 2, 0)) #/ 2 + 0.5
+            img = np.transpose(img, (1, 2, 0)) 
             ax = fig.add_subplot(5, 5, i+1)
             ax.axis('off')
             ax.set_title(f'\nactual : {self.class_names[target.item()]}\npredicted : {self.class_names[pred.item()]}',fontsize=10)  
