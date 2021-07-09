@@ -38,8 +38,8 @@ class CIFAR10AlbumentationS9:
         # Train Phase transformations
         train_transforms = A.Compose([A.PadIfNeeded(min_height=40, min_width=40, always_apply=True),
                                       A.RandomCrop(width=32, height=32,p=1),
-                                      A.HorizontalFlip(p=0.5),
-                                      A.CoarseDropout(max_holes=1,min_holes = 1, max_height=8, max_width=8, p=0.5,fill_value=tuple([x * 255.0 for x in mean]),
+                                      A.HorizontalFlip(p=1),
+                                      A.CoarseDropout(max_holes=3,min_holes = 1, max_height=8, max_width=8, p=0.8,fill_value=tuple([x * 255.0 for x in mean]),
                                       min_height=8, min_width=8),
                                       A.Normalize(mean=mean, std=std,always_apply=True),
                                       ToTensorV2()
