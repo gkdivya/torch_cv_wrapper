@@ -21,25 +21,25 @@ class TriggerEngine:
     def __init__(self, config):
         self.config = config
         self.loader = config['data_loader']['type']
-        self.cifar_dataset=eval(self.loader)(self.config)
+        self.image_dataset=eval(self.loader)(self.config)
         self.device = self.set_device()
-        self.class_names = self.config['data_loader']['classes']
         self.writer = SummaryWriter()
         self.l2_factor = self.config['training_params']['l2_factor']
 
         
     def dataloader(self):
         #Get dataloaders
-        train_loader,test_loader = self.cifar_dataset.get_dataloader()
-        return train_loader,test_loader
-        
+        return self.image_dataset.get_dataloader()
+       
+    def get_classes(self): 
+        return self.image_dataset.classes()
         
     def set_device(self):
         use_cuda = torch.cuda.is_available()
         device = torch.device("cuda" if use_cuda else "cpu")
         return device
         
-    def run_experiment(self,model,train_loader,test_loader,lrmin,lrmax):
+    def run_experiment(self,model,train_loader,test_loader,lrmin=None,lrmax=None):
         
         model.to(self.device) 
         dropout=self.config['model_params']['dropout']
@@ -62,16 +62,23 @@ class TriggerEngine:
         lrs=[]
             
         
-        optimizer = optim.SGD(model.parameters(), lr=lrmin, momentum=0.90,weight_decay=self.l2_factor)
         
-        if self.config['lr_scheduler'] == 'OneCycleLR': 
-            print("using OneCycleLR")
-            scheduler = OneCycleLR(optimizer=optimizer, max_lr=lrmax,
-                                  epochs=epochs, steps_per_epoch=len(train_loader),
-                                  pct_start=max_epoch/epochs,div_factor=8)
+        if lrmax is not None:
+            optimizer = optim.SGD(model.parameters(), lr=lrmin, momentum=0.90,weight_decay=self.l2_factor)
+            if self.config['lr_scheduler'] == 'OneCycleLR': 
+                scheduler = OneCycleLR(optimizer=optimizer, max_lr=lrmax,
+                                      epochs=epochs, steps_per_epoch=len(train_loader),
+                                      pct_start=max_epoch/epochs,div_factor=8)
+            else:
+                scheduler = ReduceLROnPlateau(optimizer, factor=0.2, patience=3,verbose=True,mode='max')
         else:
-            scheduler = ReduceLROnPlateau(optimizer, factor=0.2, patience=3,verbose=True,mode='max')
+            optimizer = opt_func(model.parameters(), lr=lr, momentum=0.90,weight_decay=self.l2_factor)
+            if self.config['lr_scheduler'] == 'OneCycleLR':
+                scheduler = OneCycleLR(optimizer, max_lr=lr,epochs=epochs,steps_per_epoch=len(train_loader))
+            else:
+                scheduler = ReduceLROnPlateau(optimizer, factor=0.2, patience=3,verbose=True,mode='max')
 
+            
         for epoch in range(1, epochs + 1):
             print(f'Epoch {epoch}:')
             trn.train(model, self.device, train_loader, optimizer,epoch, train_accuracy, train_losses, l1_factor,scheduler,criterion,lrs,self.writer,grad_clip)
@@ -101,11 +108,12 @@ class TriggerEngine:
         lr_finder.range_test(train_loader, val_loader=test_loader, end_lr=end_lr, num_iter=num_iterations, step_mode="linear",diverge_th=50)
         
         # Plot
-        max_lr = lr_finder.plot(suggest_lr=True,skip_start=0, skip_end=0)
+        max_lr = lr_finder.history['lr'][lr_finder.history['loss'].index(lr_finder.best_loss)]
+        #max_lr = lr_finder.plot(suggest_lr=True,skip_start=0, skip_end=0)
 
         # Reset graph
         lr_finder.reset()
-        return max_lr[1]
+        return max_lr
     
         
     def save_experiment(self,model, experiment_name,path):
@@ -140,11 +148,10 @@ class TriggerEngine:
         return wrong_predictions
         
     def plot_misclassified(self,wrong_predictions):
-        fig = plt.figure(figsize=(10,12))
+        fig = plt.figure(figsize=(15,12))
         fig.tight_layout()
-        mean,std = self.cifar_dataset.calculate_mean_std()
-        #mean,std = helper.calculate_mean_std("CIFAR10")
-        for i, (img, pred, correct) in enumerate(wrong_predictions[:20]):
+        mean,std = self.image_dataset.calculate_mean_std()
+        for i, (img, pred, correct) in enumerate(wrong_predictions[:10]):
             img, pred, target = img.cpu().numpy().astype(dtype=np.float32), pred.cpu(), correct.cpu()
             for j in range(img.shape[0]):
                 img[j] = (img[j]*std[j])+mean[j]
@@ -152,6 +159,8 @@ class TriggerEngine:
             img = np.transpose(img, (1, 2, 0)) 
             ax = fig.add_subplot(5, 5, i+1)
             ax.axis('off')
+            self.class_names,_ = self.get_classes()
+            
             ax.set_title(f'\nactual : {self.class_names[target.item()]}\npredicted : {self.class_names[pred.item()]}',fontsize=10)  
             ax.imshow(img)  
           
