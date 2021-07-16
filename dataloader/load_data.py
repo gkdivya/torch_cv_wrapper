@@ -14,6 +14,8 @@ import zipfile
 from io import BytesIO
 import glob
 import csv
+import numpy as np
+import random
 
 class Cifar10DataLoader:
     def __init__(self, config):
@@ -113,7 +115,7 @@ class TinyImageNetDataLoader:
 
 
 class TinyImageNet(Dataset):
-    def __init__(self, root, train=True, transform=None,  download=False):
+    def __init__(self, root, train=True, transform=None,  download=False,train_split=0.7):
         
         self.root = root
         self.transform = transform
@@ -143,6 +145,15 @@ class TinyImageNet(Dataset):
             for line in csv.reader(f, delimiter='\t'):
                 self.image_paths.append(os.path.join(val_images_path, line[0]))
                 self.targets.append(class_id[line[1]][0])
+                
+        self.indices = np.arange(len(self.targets))
+
+        random_seed=1
+        np.random.seed(random_seed)
+        np.random.shuffle(self.indices)
+
+        split_idx = int(len(self.indices) * train_split)
+        self.indices = self.indices[:split_idx] if train else self.indices[split_idx:]
 
     def download(self):
         if (os.path.isdir("./data/tiny-imagenet-200")):
@@ -157,10 +168,12 @@ class TinyImageNet(Dataset):
 
 
     def __getitem__(self, index):
-        filepath = self.image_paths[index]
+        
+        image_index = self.indices[index] 
+        filepath = self.image_paths[image_index]
         img = Image.open(filepath)
         img = img.convert("RGB")
-        target = self.targets[index]
+        target = self.targets[image_index]
 
         if self.transform is not None:
             img = self.transform(img)
@@ -168,4 +181,4 @@ class TinyImageNet(Dataset):
         return img, target
 
     def __len__(self):
-        return len(self.image_paths)
+        return len(self.indices)
