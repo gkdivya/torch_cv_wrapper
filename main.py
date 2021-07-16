@@ -124,7 +124,7 @@ class TriggerEngine:
         result = summary(model, input_size=input_size)
         print(result)    
         
-    def wrong_predictions(self,model,test_loader):
+    def wrong_predictions(self,model,test_loader,num_img):
         wrong_images=[]
         wrong_label=[]
         correct_label=[]
@@ -143,25 +143,26 @@ class TriggerEngine:
                 wrong_predictions = list(zip(torch.cat(wrong_images),torch.cat(wrong_label),torch.cat(correct_label)))    
             print(f'Total wrong predictions are {len(wrong_predictions)}')
             
-            self.plot_misclassified(wrong_predictions)
+            self.plot_misclassified(wrong_predictions,num_img)
       
         return wrong_predictions
         
-    def plot_misclassified(self,wrong_predictions):
+    def plot_misclassified(self,wrong_predictions,num_img):
         fig = plt.figure(figsize=(15,12))
         fig.tight_layout()
         mean,std = self.image_dataset.calculate_mean_std()
-        for i, (img, pred, correct) in enumerate(wrong_predictions[:10]):
+        for i, (img, pred, correct) in enumerate(wrong_predictions[:num_img]):
             img, pred, target = img.cpu().numpy().astype(dtype=np.float32), pred.cpu(), correct.cpu()
             for j in range(img.shape[0]):
                 img[j] = (img[j]*std[j])+mean[j]
             
             img = np.transpose(img, (1, 2, 0)) 
             ax = fig.add_subplot(5, 5, i+1)
+            fig.subplots_adjust(hspace=.5)
             ax.axis('off')
             self.class_names,_ = self.get_classes()
             
-            ax.set_title(f'\nactual : {self.class_names[target.item()]}\npredicted : {self.class_names[pred.item()]}',fontsize=10)  
+            ax.set_title(f'\nActual : {self.class_names[target.item()]}\nPredicted : {self.class_names[pred.item()]}',fontsize=10)  
             ax.imshow(img)  
           
         plt.show()
