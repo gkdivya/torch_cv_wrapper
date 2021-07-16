@@ -64,7 +64,7 @@ class TinyImageNetAlbumentation:
                                         A.RandomCrop(height=64, width=64,p=1),
                                         A.HorizontalFlip(p=0.5),
                                         A.CoarseDropout(max_holes=1,min_holes = 1, max_height=32, max_width=32, p=0.8,fill_value=tuple([x * 255.0 for x in mean]),
-                                      min_height=8, min_width=8),
+                                      min_height=32, min_width=32),
                                         A.Normalize(mean=mean, std=std,always_apply=True),
                                         ToTensorV2()
                                     ])
