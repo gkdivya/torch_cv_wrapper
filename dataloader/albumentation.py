@@ -62,6 +62,7 @@ class TinyImageNetAlbumentation:
         # Train Phase transformations
         train_transforms = A.Compose([  A.PadIfNeeded(min_height=70, min_width=70, always_apply=True),
                                         A.RandomCrop(height=64, width=64,p=1),
+                                        A.Rotate(limit=5),
                                         A.HorizontalFlip(p=0.5),
                                         A.CoarseDropout(max_holes=1,min_holes = 1, max_height=32, max_width=32, p=0.8,fill_value=tuple([x * 255.0 for x in mean]),
                                       min_height=32, min_width=32),
